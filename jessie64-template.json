@@ -1,0 +1,63 @@
+{
+    "push": {
+      "name": "",
+      "vcs": true
+    },
+    "variables": {
+        "atlas_username": "{{env `ATLAS_USERNAME`}}",
+        "atlas_name": "{{env `ATLAS_NAME`}}"
+    },
+    "provisioners": [
+		{
+            "type": "shell",
+			"execute_command": "echo 'vagrant' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
+			"scripts": [
+				"scripts/base.sh",
+				"scripts/sudoers.sh",
+				"scripts/key.sh",
+                "scripts/vmware-tools.sh",
+                "scripts/systemd.sh",
+                "scripts/cleanup.sh",
+                "scripts/zerodisk.sh"
+			]
+		}
+    ],
+    "builders": [
+        {
+            "type": "vmware-iso",
+            "boot_command": [
+                "<esc><wait>",
+                "install",
+                " auto",
+                " preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/vagrant-jessie.txt",
+                " debian-installer=en_GB",
+                " locale=en_GB.UTF-8",
+                " keymap=uk",
+                " netcfg/get_hostname=vagrant",
+                " netcfg/get_domain=vagrantup.com ",
+                "<enter>"
+            ],
+
+            "boot_wait": "10s",
+            "disk_size": 20480,
+            "guest_os_type": "debian8-64",
+            "http_directory": "http",
+            "iso_checksum": "dd25bcdde3c6ea5703cc0f313cde621b13d42ff7d252e2538a11663c93bf8654",
+            "iso_checksum_type": "sha256",
+            "iso_url": "http://cdimage.debian.org/debian-cd/8.3.0/amd64/iso-cd/debian-8.3.0-amd64-netinst.iso",
+            "skip_compaction": true,
+            "ssh_username": "vagrant",
+            "ssh_password": "vagrant",
+            "ssh_port": 22,
+            "ssh_wait_timeout": "1200s",
+            "shutdown_command": "echo 'vagrant'|sudo -S shutdown -h now",
+            "tools_upload_flavor": "linux"
+        }
+    ],
+    "post-processors": [
+        [{
+            "type": "vagrant",
+            "keep_input_artifact": false
+        }]
+    ]
+}
